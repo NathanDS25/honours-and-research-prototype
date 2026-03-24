@@ -1,0 +1,168 @@
+# 🎓 Presentation Guide — AI-Driven Market Regime Detection System
+
+---
+
+## 1. What is This Project? (Opening Statement)
+
+> *"We built an AI system that watches the stock market like an expert analyst — reading price trends, global economic signals, and financial news simultaneously — and classifies the market into one of three regimes: Bull, Bear, or Sideways."*
+
+- **Research Paper Alignment:** "AI-Driven Market Regime Detection using Multimodal Fusion of Price, Sentiment, and Macroeconomic Data"
+- **Stock tracked:** BSE SENSEX Index (`^BSESN`) — India's benchmark stock index
+- **Data period:** 2014 to 2024 (10 years of daily market data)
+
+---
+
+## 2. The Problem Being Solved
+
+Traditional market analysis looks at only **one type of data at a time** (e.g. just price charts). In reality, markets are driven by multiple simultaneous forces:
+
+| Force | Example |
+|---|---|
+| Price movement | Is the market trending up or down? |
+| Momentum | Is it moving too fast to sustain? |
+| Macroeconomics | Is oil expensive? Is global fear high? |
+| News sentiment | Are headlines positive or negative? |
+
+> *"Our system fuses all these signals together using AI — just like a professional fund manager would."*
+
+---
+
+## 3. System Architecture (Reference the Diagram)
+
+The system follows a **3-layer architecture**:
+
+```
+INPUT LAYER           MIDDLE LAYER              SYSTEM OUTPUT
+─────────────         ─────────────────         ──────────────────
+Price Data     ──▶   LSTM Model         ──▶
+                      (reads 15-day              Fusion Model
+Macro Data     ──▶   price patterns)   ──▶    (Logistic Regression)
+                                                → Regime Prediction
+Sentiment      ──▶   XGBoost Model     ──▶    → Confidence Score
+(News Text)           (macro + tech)           → Risk Indicator
+                                               → Sharpe Ratio
+```
+
+**Key point to emphasise:** *"This is not a simple rule like 'if price goes up = bull market'. The AI learns the complex relationships between all these signals from 10 years of data."*
+
+---
+
+## 4. Data Sources (Show This to the Audience)
+
+| Data Stream | Source | How It's Used |
+|---|---|---|
+| SENSEX Close Price | Yahoo Finance (live) | LSTM price pattern learning |
+| RSI (14-day) | Computed from price | Momentum signal |
+| MACD | Computed from price | Trend strength/direction |
+| SMA 20 & SMA 50 | Computed from price | Regime labelling + trend |
+| **Crude Oil (WTI)** | Yahoo Finance `CL=F` | Macro inflation proxy |
+| **VIX Index** | Yahoo Finance `^VIX` | Market fear / stress level |
+| **Gold Futures** | Yahoo Finance `GC=F` | Safe-haven / risk-off signal |
+| **Sentiment Signal** | DistilBERT NLP | Daily market mood score |
+| **Live News** | Economic Times RSS | Real-time headline scoring |
+
+---
+
+## 5. The AI Models — Explain Each One
+
+### 🔵 LSTM (Long Short-Term Memory Neural Network)
+- A type of deep learning model designed for **sequence data**
+- Reads the **last 15 days** of price, RSI, MACD, and moving averages
+- Learns patterns like: *"When price crosses above the 50-day average for 3 days in a row, that often signals a Bull regime"*
+- **Output:** Probability distribution across [Bull, Bear, Sideways]
+
+### 🟠 XGBoost (Gradient Boosted Trees)
+- A powerful tree-based machine learning model
+- Reads **macroeconomic + technical data** as a snapshot of the current market state
+- Learns rules like: *"High VIX + falling crude oil + RSI below 40 = likely Bear market"*
+- **Output:** Probability distribution across [Bull, Bear, Sideways]
+
+### 🟢 Fusion Model (Logistic Regression — System Output Layer)
+- Takes the **probability outputs from both LSTM and XGBoost**, plus the live **NLP sentiment score**
+- Learns how to **weight and combine** these three expert opinions
+- This is the "multimodal fusion" from the research paper
+- **Output:** Final regime prediction + confidence score
+
+### 💬 DistilBERT (Transformer NLP)
+- A pre-trained HuggingFace language model fine-tuned on sentiment classification
+- Reads any financial news headline and outputs a score from **-1 (bearish)** to **+1 (bullish)**
+- Used both for training (calibrating the sentiment signal) and for **live prediction** (sidebar input)
+
+---
+
+## 6. Dashboard Walkthrough (Demo Order)
+
+**Step 1 — Main Chart (top)**
+> *"This is the BSE SENSEX price over the last 2 years. The coloured zones are the AI's regime labels: green = bull market, red = bear, yellow = sideways."*
+
+**Step 2 — Technical Analysis (RSI + MACD)**
+> *"RSI tells us if the market is moving too fast in one direction. MACD shows whether momentum is building or fading. Both feed into the AI."*
+
+**Step 3 — Macroeconomic Dashboard**
+> *"These are real live prices — Crude Oil, the VIX fear index, and Gold — pulled automatically from Yahoo Finance every time the app loads. When fear spikes or oil crashes, the AI picks that up."*
+
+**Step 4 — Unified Multimodal Chart**
+> *"This is the most important chart. All 4 data streams on a single timeline. You can hover and see — on any day — what all the indicators looked like simultaneously. This is everything the AI sees."*
+
+**Step 5 — Live News Feed**
+> *"The app fetches real current headlines from Economic Times Markets. Each headline is scored by the same DistilBERT transformer model — green = bullish, red = bearish. The pie chart shows today's overall news mood."*
+
+**Step 6 — Making a Prediction (Sidebar)**
+> *"Type any financial headline into the sidebar. The system scores it with NLP, combines it with the LSTM and XGBoost outputs, and gives you a final regime call with a confidence score, risk level, and Sharpe ratio."*
+
+---
+
+## 7. Model Evaluation
+
+The system is evaluated using a strict **time-series split (no shuffling)**:
+- **Train:** 80% of historical data (2014–2022)
+- **Test:** 20% of future data (2022–2024)
+
+Metrics printed to terminal on every run:
+- **Accuracy** — overall correct classifications
+- **Precision** — of predicted Bull periods, how many were actually Bull
+- **Recall** — of actual Bull periods, how many did the AI catch
+- **F1-Score** — balanced measure of precision and recall
+
+> *"We use time-series split specifically because shuffling data would let the model 'see the future' — a form of data leakage. Our approach reflects real-world deployment conditions."*
+
+---
+
+## 8. Risk Metrics
+
+| Metric | What it means | How it's computed |
+|---|---|---|
+| **Annualised Volatility** | How much the market fluctuates per year | Rolling 252-day std × √252 |
+| **Sharpe Ratio** | Return per unit of risk | (Annual return − 5% risk-free) ÷ volatility |
+| **Risk Label** | Simple traffic light | Low (<15% vol), Moderate (<25%), High (>25%) |
+
+---
+
+## 9. Key Talking Points (For Q&A)
+
+**Q: Why SENSEX and not individual stocks?**
+> The SENSEX is India's market benchmark — it represents 30 of the largest companies and is less noisy than individual stocks. The system can be pointed at any ticker by changing two lines.
+
+**Q: Is this predicting future prices?**
+> No — it's classifying the **current regime**. Regime detection tells you what kind of market you're in now, which helps inform strategy. Predicting exact future prices is a much harder (and unsolved) problem.
+
+**Q: What makes this "multimodal"?**
+> Because it processes three fundamentally different types of data — numerical time-series (price), structured tabular data (macro), and unstructured natural language (news) — and combines them in a single learned model.
+
+**Q: How is this different from a simple moving average crossover strategy?**
+> A crossover only looks at two numbers. Our system considers 9 features across 3 modalities, uses deep learning for sequential pattern recognition, and incorporates real-world economic context that a simple rule cannot capture.
+
+---
+
+## 10. Tech Stack Summary
+
+| Layer | Technology |
+|---|---|
+| Data fetching | `yfinance` |
+| ML models | `XGBoost`, `scikit-learn` |
+| Deep learning | `TensorFlow / Keras (LSTM)` |
+| NLP | `HuggingFace Transformers (DistilBERT)` |
+| News feed | `feedparser` (RSS) |
+| Visualisation | `Plotly` |
+| Dashboard | `Streamlit` |
+| Language | Python 3 |
