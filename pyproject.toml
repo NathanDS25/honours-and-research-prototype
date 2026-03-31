@@ -1,0 +1,21 @@
+[project]
+name = "honours-and-research-prototype"
+version = "0.1.0"
+description = "AI-Driven Market Regime Detection System"
+dependencies = [
+    "pandas",
+    "numpy",
+    "yfinance",
+    "matplotlib",
+    "plotly",
+    "scikit-learn",
+    "tensorflow",
+    "xgboost",
+    "streamlit",
+    "transformers",
+    "feedparser",
+    "torch"
+]
+
+[tool.setuptools]
+py-modules = ["app", "main"]
