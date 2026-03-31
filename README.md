@@ -1,21 +1,23 @@
-# Honours and Research Prototype - Market Analysis
+---
+title: Market Regime AI Dashboard
+emoji: 📈
+colorFrom: blue
+colorTo: indigo
+sdk: streamlit
+sdk_version: 1.55.0
+app_file: main.py
+pinned: false
+---
 
-## Overview
-Prototype for honours research on market data analysis (stocks, etc.).
+# 🚀 Next-Gen AI Market Regime Dashboard
 
-## Setup
-1. Activate venv: `market_env\\Scripts\\Activate.ps1` (PowerShell)
-2. Install deps: `pip install -r requirements.txt`
-3. Run: `python main.py`
+Powered by **True Multimodal AI Fusion** (Price, Macro, Sentiment). This dashboard uses DistilBERT for NLP, XGBoost for Macro signals, and a custom Fusion Layer for regime detection.
 
-## Features
-- Fetch stock data (yfinance)
-- Basic analysis & plots
+## 🛠️ Tech Stack
+- **Framework**: Streamlit
+- **AI Models**: DistilBERT (Transformers), XGBoost, Scikit-learn
+- **Data Source**: Yahoo Finance (yfinance)
+- **Visualization**: Plotly
 
-## Structure
-- `main.py`: Entry point
-- `data/`: For datasets
-- `requirements.txt`: Deps
-
-Extend for research needs.
-
+## ☁️ Deployment
+This space is optimized for high-resource environments (16GB RAM) to support full-scale AI inference.
