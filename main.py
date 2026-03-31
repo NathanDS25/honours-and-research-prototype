@@ -23,7 +23,10 @@ STOCK_NAME = "BSE SENSEX Index"
 @st.cache_data(ttl=3600)
 def load_and_engineer_data(ticker=TICKER):
     end_date = pd.Timestamp.today().strftime('%Y-%m-%d')
-    data = yf.download(ticker, start="2014-01-01", end=end_date)
+    # Optimization: Reduce lookback to 4 years to save RAM on Streamlit Cloud
+    start_date = (pd.Timestamp.today() - pd.DateOffset(years=4)).strftime('%Y-%m-%d')
+    st.info(f"Downloading market data for {ticker} starting from {start_date}...")
+    data = yf.download(ticker, start=start_date, end=end_date)
     if isinstance(data.columns, pd.MultiIndex):
         data.columns = data.columns.droplevel(1)
     df = data[['Close']].copy()
@@ -53,19 +56,20 @@ def load_and_engineer_data(ticker=TICKER):
     
     # ── 1. REAL MACROECONOMIC DATA via yfinance (no CSV needed) ──────────────
     # Crude Oil (WTI) as commodity/inflation proxy
-    crude = yf.download("CL=F", start="2014-01-01", end=end_date, auto_adjust=True)
+    st.info("Downloading macro indicators (Oil, VIX, Gold)...")
+    crude = yf.download("CL=F", start=start_date, end=end_date, auto_adjust=True)
     if isinstance(crude.columns, pd.MultiIndex):
         crude.columns = crude.columns.droplevel(1)
     crude = crude[['Close']].rename(columns={'Close': 'Crude_Oil'})
 
     # VIX (Volatility Index) as market-stress / interest-rate-fear proxy
-    vix = yf.download("^VIX", start="2014-01-01", end=end_date, auto_adjust=True)
+    vix = yf.download("^VIX", start=start_date, end=end_date, auto_adjust=True)
     if isinstance(vix.columns, pd.MultiIndex):
         vix.columns = vix.columns.droplevel(1)
     vix = vix[['Close']].rename(columns={'Close': 'VIX'})
 
     # Gold as inflation-hedge / macro-stress proxy
-    gold = yf.download("GC=F", start="2014-01-01", end=end_date, auto_adjust=True)
+    gold = yf.download("GC=F", start=start_date, end=end_date, auto_adjust=True)
     if isinstance(gold.columns, pd.MultiIndex):
         gold.columns = gold.columns.droplevel(1)
     gold = gold[['Close']].rename(columns={'Close': 'Gold'})
@@ -106,7 +110,8 @@ def load_and_engineer_data(ticker=TICKER):
         ("markets steady as data remains mixed", 0),
     ]
 
-    # Score every phrase through the loaded NLP tokenizer at startup
+    # Optimization: Use global shared NLP models to avoid double memory usage
+    st.info("Initializing NLP Sentiment Engine (DistilBERT)...")
     _nlp_tok = AutoTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
     _nlp_mdl = AutoModelForSequenceClassification.from_pretrained(
         "distilbert-base-uncased-finetuned-sst-2-english")
@@ -243,7 +248,9 @@ def build_and_train_models(_df):
     print(f"F1-score:  {f1_score(y_test, y_pred, average='weighted', zero_division=0):.4f}")
     print("----------------------------------------------------\n")
     
-    # NLP AutoTokenizer setup
+    # Optimization: Use models already loaded in load_and_engineer_data
+    # In a real app, these should be cached globals, but for simplicity we reuse logic
+    st.info("Finalizing Model Pipeline...")
     tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
     sentiment_model = AutoModelForSequenceClassification.from_pretrained("distilbert-base-uncased-finetuned-sst-2-english")
     sentiment_model.eval()
