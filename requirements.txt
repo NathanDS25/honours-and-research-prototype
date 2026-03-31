@@ -4,8 +4,9 @@ yfinance
 matplotlib
 plotly
 scikit-learn
-jupyter
 tensorflow
 xgboost
 streamlit
 transformers
+torch
+feedparser

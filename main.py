@@ -157,6 +157,17 @@ def load_and_engineer_data(ticker=TICKER):
     df['Regime'] = df['Regime'].rolling(window=5, min_periods=1, center=True).median().round().astype(int)
     
     df.dropna(inplace=True)
+    
+    # Save processed data for research/backtesting
+    try:
+        import os
+        if not os.path.exists("data"):
+            os.makedirs("data")
+        df.to_csv("data/market_data_processed.csv")
+        print(f"Data saved to data/market_data_processed.csv (Shape: {df.shape})")
+    except Exception as e:
+        print(f"Warning: Could not save data: {e}")
+
     return df
 
 @st.cache_resource
